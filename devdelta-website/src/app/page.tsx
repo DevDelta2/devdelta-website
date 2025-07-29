@@ -5,6 +5,12 @@ import Image from "next/image";
 export default function Home() {
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
     const [scrolled, setScrolled] = useState(false);
+    const [chatOpen, setChatOpen] = useState(false);
+    const [showNotification, setShowNotification] = useState(false);
+    const [messages, setMessages] = useState([
+        { type: 'bot', text: 'Hello! 👋 Welcome to DevDelta. How can we help you today?' }
+    ]);
+    const [inputMessage, setInputMessage] = useState('');
 
     useEffect(() => {
         const handleScroll = () => {
@@ -13,6 +19,15 @@ export default function Home() {
 
         window.addEventListener('scroll', handleScroll);
         return () => window.removeEventListener('scroll', handleScroll);
+    }, []);
+
+    useEffect(() => {
+        // Show notification after 3 seconds
+        const timer = setTimeout(() => {
+            setShowNotification(true);
+        }, 3000);
+
+        return () => clearTimeout(timer);
     }, []);
 
     useEffect(() => {
@@ -34,6 +49,41 @@ export default function Home() {
 
         return () => observer.disconnect();
     }, []);
+
+    const handleSendMessage = (e: React.FormEvent) => {
+        e.preventDefault();
+        if (inputMessage.trim()) {
+            setMessages([...messages, { type: 'user', text: inputMessage }]);
+            // Simulate bot response
+            setTimeout(() => {
+                setMessages(prev => [...prev, {
+                    type: 'bot',
+                    text: 'Thank you for your message! A DevDelta representative will contact you shortly. For urgent matters, please email us directly at devdeltaclient@gmail.com'
+                }]);
+            }, 1000);
+            setInputMessage('');
+        }
+    };
+
+    const scrollToSection = (e: React.MouseEvent<HTMLAnchorElement>, sectionId: string) => {
+        e.preventDefault();
+        const section = document.querySelector(sectionId);
+        if (section) {
+            section.scrollIntoView({ behavior: 'smooth' });
+            setMobileMenuOpen(false);
+        }
+    };
+
+    const openChatWithMessage = (customMessage?: string) => {
+        setChatOpen(true);
+        setShowNotification(false);
+        if (customMessage) {
+            setMessages([
+                { type: 'bot', text: 'Hello! 👋 Welcome to DevDelta. How can we help you today?' },
+                { type: 'bot', text: customMessage }
+            ]);
+        }
+    };
 
     return (
         <div className="min-h-screen bg-[#F1F0EE]">
@@ -85,6 +135,26 @@ export default function Home() {
                     }
                 }
 
+                @keyframes slideIn {
+                    from {
+                        transform: translateX(100%);
+                        opacity: 0;
+                    }
+                    to {
+                        transform: translateX(0);
+                        opacity: 1;
+                    }
+                }
+
+                @keyframes bounce {
+                    0%, 100% {
+                        transform: translateY(0);
+                    }
+                    50% {
+                        transform: translateY(-5px);
+                    }
+                }
+
                 .animate-fade-in-up {
                     animation: fadeInUp 0.6s ease-out forwards;
                 }
@@ -99,6 +169,14 @@ export default function Home() {
 
                 .animate-pulse {
                     animation: pulse 2s ease-in-out infinite;
+                }
+
+                .animate-slide-in {
+                    animation: slideIn 0.3s ease-out forwards;
+                }
+
+                .animate-bounce {
+                    animation: bounce 1s ease-in-out infinite;
                 }
 
                 .glass-effect {
@@ -118,6 +196,31 @@ export default function Home() {
                     background-size: 200% 100%;
                     animation: shimmer 3s ease-in-out infinite;
                 }
+
+                .nav-link {
+                    position: relative;
+                    transition: all 0.3s ease;
+                }
+
+                .nav-link::after {
+                    content: '';
+                    position: absolute;
+                    bottom: -2px;
+                    left: 50%;
+                    width: 0;
+                    height: 2px;
+                    background: #54504F;
+                    transition: all 0.3s ease;
+                    transform: translateX(-50%);
+                }
+
+                .nav-link:hover::after {
+                    width: 100%;
+                }
+
+                .nav-link:active {
+                    transform: scale(0.95);
+                }
             `}</style>
 
             {/* Navigation */}
@@ -129,28 +232,28 @@ export default function Home() {
                         </div>
                         <div className="hidden md:block">
                             <div className="ml-10 flex items-baseline space-x-8">
-                                <a href="#home" className="text-[#474342] hover:text-[#54504F] px-3 py-2 text-sm font-medium transition-colors">Home</a>
-                                <a href="#services" className="text-[#474342] hover:text-[#54504F] px-3 py-2 text-sm font-medium transition-colors">Services</a>
-                                <a href="#about" className="text-[#474342] hover:text-[#54504F] px-3 py-2 text-sm font-medium transition-colors">About</a>
-                                <a href="#contact" className="text-[#474342] hover:text-[#54504F] px-3 py-2 text-sm font-medium transition-colors">Contact</a>
+                                <a href="#home" onClick={(e) => scrollToSection(e, '#home')} className="nav-link text-[#474342] hover:text-[#54504F] px-3 py-2 text-sm font-medium">Home</a>
+                                <a href="#services" onClick={(e) => scrollToSection(e, '#services')} className="nav-link text-[#474342] hover:text-[#54504F] px-3 py-2 text-sm font-medium">Services</a>
+                                <a href="#about" onClick={(e) => scrollToSection(e, '#about')} className="nav-link text-[#474342] hover:text-[#54504F] px-3 py-2 text-sm font-medium">About</a>
+                                <a href="#contact" onClick={(e) => scrollToSection(e, '#contact')} className="nav-link text-[#474342] hover:text-[#54504F] px-3 py-2 text-sm font-medium">Contact</a>
                             </div>
                         </div>
                         <button
                             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-                            className="md:hidden text-[#474342] hover:text-[#54504F]"
+                            className="md:hidden text-[#474342] hover:text-[#54504F] p-2 transition-transform duration-200 active:scale-90"
                         >
-                            <i className={`fas ${mobileMenuOpen ? 'fa-times' : 'fa-bars'} text-xl`}></i>
+                            <span className="text-2xl font-bold">{mobileMenuOpen ? '×' : '<>'}</span>
                         </button>
                     </div>
                 </div>
                 {/* Mobile menu */}
                 {mobileMenuOpen && (
-                    <div className="md:hidden bg-white border-t border-[#949291]/20">
+                    <div className="md:hidden bg-white border-t border-[#949291]/20 animate-fade-in-up">
                         <div className="px-2 pt-2 pb-3 space-y-1">
-                            <a href="#home" className="text-[#474342] hover:text-[#54504F] block px-3 py-2 text-base font-medium">Home</a>
-                            <a href="#services" className="text-[#474342] hover:text-[#54504F] block px-3 py-2 text-base font-medium">Services</a>
-                            <a href="#about" className="text-[#474342] hover:text-[#54504F] block px-3 py-2 text-base font-medium">About</a>
-                            <a href="#contact" className="text-[#474342] hover:text-[#54504F] block px-3 py-2 text-base font-medium">Contact</a>
+                            <a href="#home" onClick={(e) => scrollToSection(e, '#home')} className="text-[#474342] hover:text-[#54504F] hover:bg-[#F1F0EE] block px-3 py-2 text-base font-medium rounded-lg transition-all">Home</a>
+                            <a href="#services" onClick={(e) => scrollToSection(e, '#services')} className="text-[#474342] hover:text-[#54504F] hover:bg-[#F1F0EE] block px-3 py-2 text-base font-medium rounded-lg transition-all">Services</a>
+                            <a href="#about" onClick={(e) => scrollToSection(e, '#about')} className="text-[#474342] hover:text-[#54504F] hover:bg-[#F1F0EE] block px-3 py-2 text-base font-medium rounded-lg transition-all">About</a>
+                            <a href="#contact" onClick={(e) => scrollToSection(e, '#contact')} className="text-[#474342] hover:text-[#54504F] hover:bg-[#F1F0EE] block px-3 py-2 text-base font-medium rounded-lg transition-all">Contact</a>
                         </div>
                     </div>
                 )}
@@ -168,10 +271,13 @@ export default function Home() {
                             "Why did the developer automate their coffee maker? Because coding before caffeine is a syntax error." ☕💻
                         </p>
                         <p className="text-xl text-[#615D5C] mb-10 max-w-4xl mx-auto animate-on-scroll">
-                            At DevDelta, we help businesses automate the boring and elevate the awesome. 🎯 We specialize in end-to-end automation solutions—from simple workflows to advanced AI-powered systems—helping startups and enterprises scale smarter and faster.
+                            At DevDelta, we help businesses automate the boring and elevate the awesome. 🚀💪🎯 We specialize in end-to-end automation solutions—from simple workflows to advanced AI-powered systems—helping startups and enterprises scale smarter and faster.
                         </p>
                         <div className="flex gap-4 justify-center flex-wrap animate-on-scroll">
-                            <button className="bg-[#474342] hover:bg-[#54504F] text-white font-semibold py-3 px-8 rounded-lg transition-all transform hover:scale-105 animate-pulse">
+                            <button
+                                onClick={() => openChatWithMessage("Great! I see you're ready to start your journey with DevDelta. 🚀 What type of project are you looking to build? We can help with automation, AI integration, web development, or custom solutions.")}
+                                className="bg-[#474342] hover:bg-[#54504F] text-white font-semibold py-3 px-8 rounded-lg transition-all transform hover:scale-105 animate-pulse"
+                            >
                                 Start Your Journey
                             </button>
                             <button className="border-2 border-[#474342] text-[#474342] hover:bg-[#474342] hover:text-white font-semibold py-3 px-8 rounded-lg transition-all">
@@ -253,7 +359,10 @@ export default function Home() {
                     <p className="text-xl text-gray-200 mb-8 animate-on-scroll">
                         Whether you're looking to eliminate repetitive tasks, build the next big app, or infuse AI into your operations, DevDelta is your partner in innovation.
                     </p>
-                    <button className="bg-white text-[#474342] hover:bg-[#F1F0EE] font-semibold py-4 px-10 rounded-lg transition-all transform hover:scale-105 text-lg animate-on-scroll">
+                    <button
+                        onClick={() => openChatWithMessage("Excellent! You're ready to transform your business with DevDelta. 💡 Tell us about your biggest challenge right now - what manual process is slowing you down that we can help automate?")}
+                        className="bg-white text-[#474342] hover:bg-[#F1F0EE] font-semibold py-4 px-10 rounded-lg transition-all transform hover:scale-105 text-lg animate-on-scroll"
+                    >
                         Get Started Today
                     </button>
                 </div>
@@ -394,7 +503,7 @@ export default function Home() {
                                 <h3 className="text-white font-semibold mb-4">Connect With Us</h3>
                                 <div className="flex justify-center md:justify-end space-x-4 mb-4">
                                     <a
-                                        href="https://linkedin.com/company/devdelta"
+                                        href=""
                                         target="_blank"
                                         rel="noopener noreferrer"
                                         className="glass-effect w-10 h-10 rounded-full flex items-center justify-center text-gray-300 hover:text-white hover:scale-110 transition-all"
@@ -404,7 +513,7 @@ export default function Home() {
                                         </svg>
                                     </a>
                                     <a
-                                        href="https://instagram.com/devdelta"
+                                        href=""
                                         target="_blank"
                                         rel="noopener noreferrer"
                                         className="glass-effect w-10 h-10 rounded-full flex items-center justify-center text-gray-300 hover:text-white hover:scale-110 transition-all"
@@ -414,7 +523,7 @@ export default function Home() {
                                         </svg>
                                     </a>
                                     <a
-                                        href="https://www.fiverr.com/devdelta_ra"
+                                        href="https://fiverr.com/devdelta_ra"
                                         target="_blank"
                                         rel="noopener noreferrer"
                                         className="glass-effect w-10 h-10 rounded-full flex items-center justify-center text-gray-300 hover:text-white hover:scale-110 transition-all"
@@ -424,7 +533,7 @@ export default function Home() {
                                         </svg>
                                     </a>
                                 </div>
-                                <p className="text-gray-400 text-sm">hello@devdelta.com</p>
+                                <p className="text-gray-400 text-sm">devdeltaclient@gmail.com</p>
                             </div>
                         </div>
                     </div>
@@ -436,6 +545,95 @@ export default function Home() {
                     </div>
                 </div>
             </footer>
+
+            {/* AI Assistant Button with Notification */}
+            <div className="fixed bottom-6 right-6 z-40">
+                {showNotification && !chatOpen && (
+                    <div className="absolute bottom-16 right-0 bg-white rounded-lg shadow-lg p-3 mb-2 animate-slide-in">
+                        <p className="text-sm text-[#474342] font-medium whitespace-nowrap">Can we take your order? 💬</p>
+                        <div className="absolute bottom-0 right-6 w-0 h-0 border-l-[8px] border-l-transparent border-r-[8px] border-r-transparent border-t-[8px] border-t-white"></div>
+                    </div>
+                )}
+                <button
+                    onClick={() => openChatWithMessage()}
+                    className="bg-[#474342] hover:bg-[#54504F] text-white p-4 rounded-full shadow-lg transition-all transform hover:scale-110 animate-pulse"
+                >
+                    <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" />
+                    </svg>
+                </button>
+            </div>
+
+            {/* AI Chat Modal */}
+            {chatOpen && (
+                <div className="fixed inset-0 bg-black/50 z-50 flex items-end justify-end p-4">
+                    <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md h-[600px] flex flex-col animate-fade-in-up">
+                        {/* Chat Header */}
+                        <div className="bg-[#474342] text-white p-4 rounded-t-2xl flex items-center justify-between">
+                            <div className="flex items-center space-x-3">
+                                <div className="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center">
+                                    <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                                    </svg>
+                                </div>
+                                <div>
+                                    <h3 className="font-semibold">DevDelta AI Assistant</h3>
+                                    <p className="text-xs text-gray-300">Online now</p>
+                                </div>
+                            </div>
+                            <button
+                                onClick={() => setChatOpen(false)}
+                                className="text-white/80 hover:text-white transition-colors"
+                            >
+                                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                                </svg>
+                            </button>
+                        </div>
+
+                        {/* Chat Messages */}
+                        <div className="flex-1 overflow-y-auto p-4 space-y-4">
+                            {messages.map((message, index) => (
+                                <div
+                                    key={index}
+                                    className={`flex ${message.type === 'user' ? 'justify-end' : 'justify-start'}`}
+                                >
+                                    <div
+                                        className={`max-w-[80%] p-3 rounded-lg ${
+                                            message.type === 'user'
+                                                ? 'bg-[#474342] text-white'
+                                                : 'bg-[#F1F0EE] text-[#474342]'
+                                        }`}
+                                    >
+                                        {message.text}
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+
+                        {/* Chat Input */}
+                        <form onSubmit={handleSendMessage} className="p-4 border-t border-gray-200">
+                            <div className="flex space-x-2">
+                                <input
+                                    type="text"
+                                    value={inputMessage}
+                                    onChange={(e) => setInputMessage(e.target.value)}
+                                    placeholder="Type your message..."
+                                    className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#474342]"
+                                />
+                                <button
+                                    type="submit"
+                                    className="bg-[#474342] hover:bg-[#54504F] text-white p-2 rounded-lg transition-colors"
+                                >
+                                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
+                                    </svg>
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            )}
         </div>
     );
 }
