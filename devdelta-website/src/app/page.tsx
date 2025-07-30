@@ -382,11 +382,11 @@ export default function Home() {
                             </p>
                             <div className="grid grid-cols-3 gap-6 text-center">
                                 <div className="animate-pulse">
-                                    <h4 className="text-3xl font-bold text-[#54504F]">37</h4>
+                                    <h4 className="text-3xl font-bold text-[#54504F]">36</h4>
                                     <p className="text-[#6E6A69]">Projects Delivered</p>
                                 </div>
                                 <div className="animate-pulse" style={{animationDelay: '0.5s'}}>
-                                    <h4 className="text-3xl font-bold text-[#54504F]">37</h4>
+                                    <h4 className="text-3xl font-bold text-[#54504F]">14</h4>
                                     <p className="text-[#6E6A69]">Happy Clients</p>
                                 </div>
                                 <div className="animate-pulse" style={{animationDelay: '1s'}}>
